@@ -9,7 +9,6 @@ vim.opt.wrap = false
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes:2"
 vim.opt.colorcolumn = "80,120"
---vim.opt.paste = true
 
 vim.opt.tabline = '%!v:lua.require(\'myutils\').my_tab_line()'
 
