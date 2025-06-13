@@ -89,7 +89,11 @@ return {
   init_options = volar_init_options,
   before_init = function(_, config)
     if config.init_options and config.init_options.typescript and config.init_options.typescript.tsdk == '' then
-      config.init_options.typescript.tsdk = vim.fn.expand('~') .. '/.config/yarn/global/node_modules/typescript/lib/'
+      if vim.fn.filereadable('./node_modules/.bin/tsc') then
+        config.init_options.typescript.tsdk = './node_modules/typescript/lib/'
+      else
+        config.init_options.typescript.tsdk = vim.fn.expand('~') .. '/.config/yarn/global/node_modules/typescript/lib/'
+      end
     end
   end,
 }

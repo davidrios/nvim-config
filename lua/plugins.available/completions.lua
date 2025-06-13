@@ -10,7 +10,7 @@ return {
         },
         snippet = {
           expand = function(args)
-            require("luasnip").lsp_expand(args.body)
+            -- require("luasnip").lsp_expand(args.body)
             -- vim.snippet.expand(args.body)
           end
         },
@@ -57,11 +57,11 @@ return {
   { "hrsh7th/cmp-path" },         -- Optional
   { "saadparwaiz1/cmp_luasnip" }, -- Optional
   { "hrsh7th/cmp-nvim-lua" },
-  {
-    "L3MON4D3/LuaSnip",
-    -- follow latest release.
-    version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-    -- install jsregexp (optional!).
-    build = "make install_jsregexp"
-  },
+  -- {
+  --   "L3MON4D3/LuaSnip",
+  --   -- follow latest release.
+  --   version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+  --   -- install jsregexp (optional!).
+  --   build = "make install_jsregexp"
+  -- },
 }
