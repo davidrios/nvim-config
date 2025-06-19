@@ -126,7 +126,11 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
   group = my_augroup,
   desc = 'return cursor to where it was last time closing the file',
   pattern = '*',
-  command = 'silent! normal! g`"zv',
+  callback = function()
+    if not vim.fn.expand('%'):match('COMMIT_EDITMSG$') then
+      vim.cmd('silent! normal! g`"zv')
+    end
+  end,
 })
 
 vim.api.nvim_create_autocmd({ 'BufRead' }, {
