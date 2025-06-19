@@ -31,6 +31,8 @@ vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set("n", "q", "<nop>")
 vim.keymap.set("i", "<c-c>", "<esc>")
 vim.keymap.set("n", "<leader>sr", ":%s/", { desc = "Search and replace" })
+vim.keymap.set("v", "<leader>sr", "y:%s/<c-r>\"/", { desc = "Search and replace" })
+vim.keymap.set("v", "<leader>sR", "y:%s/\\<<c-r>\"\\>/", { desc = "Search and replace exact" })
 vim.keymap.set("v", "O", "$og0")
 vim.keymap.set("n", "<leader>ft", vim.cmd.NvimTreeFindFile, { desc = "Find file in tree" })
 vim.keymap.set("n", "<leader>w", "<c-w>w", { desc = "Switch windows" })
@@ -49,12 +51,6 @@ vim.keymap.set("n", "<leader>6", "6gt", { desc = "Go to tab 6" })
 vim.keymap.set("n", "<leader>7", "7gt", { desc = "Go to tab 7" })
 vim.keymap.set("n", "<leader>8", "8gt", { desc = "Go to tab 8" })
 vim.keymap.set("n", "<leader>9", "9gt", { desc = "Go to tab 9" })
-
-vim.keymap.set("n", "<leader>fG", function()
-  local search = vim.fn.input("ripgrep > ")
-  local escaped, _ = string.gsub(search, "([\\\'\"<>()])", "\\%1")
-  vim.cmd("tabnew | terminal rg " .. escaped .. " || echo No results")
-end, { desc = "ripgrep to new buffer" })
 
 local dap = mu.prequire("dap")
 if dap then
@@ -81,11 +77,49 @@ if dap then
 end
 
 local telescope = mu.prequire("telescope.builtin")
+
+local function yank_call_paste(fn, register)
+  local function f()
+    if register == nil then
+      register = 9
+    end
+    mu.feedkeys('"' .. register .. 'y')
+    vim.schedule(function()
+      fn()
+      mu.feedkeys('<c-r>' .. register)
+    end)
+  end
+  return f
+end
+
 if telescope then
+  local function live_grep_uu(ignore_excludes)
+    local vimgrep_arguments = {
+      "rg", "--color=never", "--no-heading", "--with-filename", "--line-number",
+      "--column", "--smart-case", "-uu", }
+
+    if not ignore_excludes then
+      table.insert(vimgrep_arguments, "-g")
+      table.insert(vimgrep_arguments, "!node_modules")
+    end
+
+    telescope.live_grep({
+      vimgrep_arguments = vimgrep_arguments
+    })
+  end
+
   vim.keymap.set("n", "<leader>ff", telescope.find_files, { desc = "Telescope find files" })
+  vim.keymap.set("v", "<leader>ff", yank_call_paste(telescope.find_files),
+    { desc = "Telescope file files with selection in name" })
   vim.keymap.set("n", "<leader>fj", telescope.jumplist, { desc = "Telescope find jumplist" })
   vim.keymap.set("n", "<C-p>", telescope.git_files, { desc = "Telescope find files in git" })
   vim.keymap.set("n", "<leader>fg", telescope.live_grep, { desc = "Telescope live grep" })
+  vim.keymap.set("v", "<leader>fg", yank_call_paste(telescope.live_grep), { desc = "Telescope live grep selection" })
+  vim.keymap.set("n", "<leader>fG", live_grep_uu, { desc = "Telescope live grep -uu" })
+  vim.keymap.set("v", "<leader>fG", yank_call_paste(live_grep_uu), { desc = "Telescope live grep -uu selection" })
+  vim.keymap.set("n", "<leader>fA", function() live_grep_uu(true) end, { desc = "Telescope live grep -uu + excludes" })
+  vim.keymap.set("v", "<leader>fA", yank_call_paste(function() live_grep_uu(true) end),
+    { desc = "Telescope live grep -uu + excludes selection " })
   vim.keymap.set("n", "<leader>fb", telescope.buffers, { desc = "Telescope buffers" })
   vim.keymap.set("n", "<leader>fh", telescope.help_tags, { desc = "Telescope help tags" })
   vim.keymap.set("n", "<leader>fk", telescope.keymaps, { desc = "Telescope keymaps" })
