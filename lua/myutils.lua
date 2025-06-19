@@ -235,4 +235,12 @@ local function genAttachPython(name, port, remoteRoot)
 end
 M.genAttachPython = genAttachPython
 
+function M.feedkeys(keys, mode)
+  if mode == nil then
+    mode = 'n'
+  end
+  local processed_keys = vim.api.nvim_replace_termcodes(keys, true, true, true)
+  vim.api.nvim_feedkeys(processed_keys, mode, false)
+end
+
 return M

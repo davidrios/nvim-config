@@ -30,6 +30,7 @@ vim.lsp.config('*', {
 })
 
 vim.lsp.config('basedpyright', {
+  cmd = { 'uvx', '--from', 'basedpyright', 'basedpyright-langserver', '--stdio' },
   settings = {
     basedpyright = {
       analysis = {
@@ -39,3 +40,38 @@ vim.lsp.config('basedpyright', {
     }
   }
 })
+
+vim.lsp.config('pylsp', {
+  cmd = { 'uvx', '--from', 'python-lsp-server[rope]', '--with', 'python-lsp-black', 'pylsp' },
+  settings = {
+    pylsp = {
+      plugins = {
+        black = {
+          enabled = true
+        }
+      }
+    }
+  }
+})
+
+vim.lsp.config('ruff', {
+  cmd = { 'uvx', 'ruff', 'server' },
+})
+
+local efmls_config = {
+  -- filetypes = vim.tbl_keys(languages),
+  settings = {
+    rootMarkers = { '.git/' },
+    -- languages = languages,
+  },
+  init_options = {
+    documentFormatting = true,
+    documentRangeFormatting = true,
+    hover = true,
+    documentSymbol = true,
+    codeAction = true,
+    completion = true
+  },
+}
+
+vim.lsp.config('efm', efmls_config)
