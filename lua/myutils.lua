@@ -3,13 +3,21 @@ local sha1 = require('sha1')
 
 local M = {}
 
-local SESSION_FILE = '.neovim/session'
+local SESSION_PREFIX = '.neovim'
+if vim.fn.filereadable('.idea/neovim/session') == 1 then
+  SESSION_PREFIX = '.idea/neovim'
+elseif vim.fn.filereadable('.vscode/neovim/session') == 1 then
+  SESSION_PREFIX = '.vscode/neovim'
+end
+M.SESSION_PREFIX = SESSION_PREFIX
+
+local SESSION_FILE = SESSION_PREFIX .. '/session'
 M.SESSION_FILE = SESSION_FILE
 
-local RC_FILE = '.neovim/rc'
+local RC_FILE = SESSION_PREFIX .. '/rc'
 M.RC_FILE = RC_FILE
 
-local UNDO_DIR = '.neovim/undo'
+local UNDO_DIR = SESSION_PREFIX .. '/undo'
 M.UNDO_DIR = UNDO_DIR
 
 local function prequire(...)
