@@ -1,3 +1,5 @@
+local A = require('plenary.async')
+local Job = require('plenary.job')
 local Path = require('plenary.path')
 local sha1 = require('sha1')
 
@@ -249,6 +251,70 @@ function M.feedkeys(keys, mode)
   end
   local processed_keys = vim.api.nvim_replace_termcodes(keys, true, true, true)
   vim.api.nvim_feedkeys(processed_keys, mode, false)
+end
+
+function M.setup_workspace_template(name)
+  local mod = prequire('workspace-templates/' .. name)
+  if mod == nil then
+    vim.notify('error: workspace template "' .. name .. '" not found', vim.log.levels.ERROR)
+    return
+  end
+
+  if vim.fn.filereadable(SESSION_FILE) ~= 1 then
+    vim.notify('error: session file does not exist, create it first', vim.log.levels.ERROR)
+    return
+  end
+
+  local rc_file_name = 'rc-' .. name .. '.lua'
+  local ws_rc_file = Path:new(SESSION_PREFIX):joinpath(rc_file_name)
+
+  if ws_rc_file:exists() then
+    vim.notify('error: workspace template rc file already exists, not overwritting', vim.log.levels.ERROR)
+    return
+  end
+
+  A.run(function()
+    if mod.setup(ws_rc_file) then
+      local to_add = "vim.cmd('luafile ' .. vim.fn.fnameescape(require('myutils').SESSION_PREFIX .. '/" ..
+      rc_file_name .. "'))"
+      M.anotify('workspace rc file created, source it by adding "' .. to_add .. '" to your rc.lua and restart')
+    end
+  end)
+end
+
+vim.api.nvim_create_user_command('MyUtilsSetupWS', function(args)
+  M.setup_workspace_template(args.fargs[1])
+end, {
+  nargs = 1,
+  complete = function()
+    local scan = require('plenary.scandir')
+    local ws_templates_path = vim.fn.stdpath('config') .. '/lua/workspace-templates'
+    local ws_dirs = scan.scan_dir(ws_templates_path, { hidden = false, depth = 1, only_dirs = true })
+    local only_names = {}
+    for i = 1, #ws_dirs do
+      local parts = vim.split(ws_dirs[i], '/')
+      table.insert(only_names, parts[#parts])
+    end
+    return only_names
+  end,
+})
+
+local function _arun_job(opts, callback)
+  if opts.command == nil then
+    Job:new(opts):after(callback):start()
+  else
+    opts.on_exit = function(res)
+      callback(res)
+    end
+    Job:new(opts):start()
+  end
+end
+M.arun_job = A.wrap(_arun_job, 2)
+
+function M.anotify(arg1, arg2, arg3)
+  vim.schedule(function()
+    vim.notify(arg1, arg2, arg3)
+  end)
 end
 
 return M
