@@ -3,9 +3,24 @@ local mu = require('myutils')
 local node_modules = vim.fn.getcwd() .. '/' .. mu.SESSION_PREFIX .. '/lsp/node_modules'
 
 vim.lsp.enable('cssls')
+vim.lsp.config('cssls', {
+  cmd = { node_modules .. '/.bin/vscode-css-language-server', '--stdio' },
+})
+
 vim.lsp.enable('jsonls')
+vim.lsp.config('jsonls', {
+  cmd = { node_modules .. '/.bin/vscode-json-language-server', '--stdio' },
+})
+
 vim.lsp.enable('html')
+vim.lsp.config('html', {
+  cmd = { node_modules .. '/.bin/vscode-html-language-server', '--stdio' },
+})
+
 vim.lsp.enable('eslint')
+vim.lsp.config('eslint', {
+  cmd = { node_modules .. '/.bin/vscode-eslint-language-server', '--stdio' },
+})
 
 vim.lsp.enable('vue_ls')
 vim.lsp.config('vue_ls', {
