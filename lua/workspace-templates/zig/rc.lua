@@ -25,14 +25,14 @@ vim.api.nvim_create_autocmd('FileType', {
         context = { only = { "source.fixAll" } },
         apply = true,
       })
-      vim.wait(50, function() return true end)
+      vim.wait(50, function() return false end)
       vim.lsp.buf.code_action({
         context = { only = { "source.organizeImports" } },
         apply = true,
       })
-      vim.wait(50, function() return true end)
+      vim.wait(50, function() return false end)
       vim.lsp.buf.format()
-      vim.wait(100, function() return true end)
+      vim.wait(100, function() return false end)
       vim.cmd.w()
     end, { desc = "Reformat and write buffer", buffer = opts.buf })
   end,
