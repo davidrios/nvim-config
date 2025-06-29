@@ -1,6 +1,8 @@
 local mu = require('myutils')
 
+local M = {}
 local my_augroup = vim.api.nvim_create_augroup('11ea7949-c92d-4a4e-85d6-5208fa4b3b44', { clear = true })
+M.my_augroup = my_augroup
 
 local function save_session()
   if vim.g.mysession_was_loaded == nil then
@@ -147,3 +149,5 @@ vim.api.nvim_create_autocmd({ 'BufRead' }, {
     end
   end
 })
+
+return M

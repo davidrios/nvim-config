@@ -253,7 +253,7 @@ function M.feedkeys(keys, mode)
   vim.api.nvim_feedkeys(processed_keys, mode, false)
 end
 
-function M.setup_workspace_template(name)
+function M.setup_workspace_rc(name)
   local mod = prequire('workspace-templates/' .. name)
   if mod == nil then
     vim.notify('error: workspace template "' .. name .. '" not found', vim.log.levels.ERROR)
@@ -269,21 +269,30 @@ function M.setup_workspace_template(name)
   local ws_rc_file = Path:new(SESSION_PREFIX):joinpath(rc_file_name)
 
   if ws_rc_file:exists() then
-    vim.notify('error: workspace template rc file already exists, not overwritting', vim.log.levels.ERROR)
+    vim.notify(
+      'error: workspace template rc file "' .. rc_file_name .. '" already exists, not overwritting',
+      vim.log.levels.ERROR)
     return
   end
 
   A.run(function()
     if mod.setup(ws_rc_file) then
-      local to_add = "vim.cmd('luafile ' .. vim.fn.fnameescape(require('myutils').SESSION_PREFIX .. '/" ..
-      rc_file_name .. "'))"
-      M.anotify('workspace rc file created, source it by adding "' .. to_add .. '" to your rc.lua and restart')
+      M.anotify(
+        'workspace rc file created, source it by adding "require(\'myutils\').source_rc(\'' ..
+        name .. '\')" to your rc.lua and restart')
+      vim.schedule(function()
+        M.source_rc(name)
+      end)
     end
   end)
 end
 
-vim.api.nvim_create_user_command('MyUtilsSetupWS', function(args)
-  M.setup_workspace_template(args.fargs[1])
+function M.source_rc(name)
+  vim.cmd('luafile ' .. vim.fn.fnameescape(SESSION_PREFIX .. '/' .. 'rc-' .. name .. '.lua'))
+end
+
+vim.api.nvim_create_user_command('MyUtilsSetupRC', function(args)
+  M.setup_workspace_rc(args.fargs[1])
 end, {
   nargs = 1,
   complete = function()
