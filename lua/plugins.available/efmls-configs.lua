@@ -1,7 +1,7 @@
 return {
   {
     'creativenull/efmls-configs-nvim',
-    version = 'v1.x.x',
+    branch = 'main',
     dependencies = { 'neovim/nvim-lspconfig' },
   }
 }
