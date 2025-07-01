@@ -102,19 +102,12 @@ local function yank_call_paste(fn, register)
 end
 
 if telescope then
-  local function live_grep_uu(ignore_excludes)
-    local vimgrep_arguments = {
-      "rg", "--color=never", "--no-heading", "--with-filename", "--line-number",
-      "--column", "--smart-case", "-uu", }
+  local live_grep_uu = function()
+    return mu.live_grep(2)
+  end
 
-    if not ignore_excludes then
-      table.insert(vimgrep_arguments, "-g")
-      table.insert(vimgrep_arguments, "!node_modules")
-    end
-
-    telescope.live_grep({
-      vimgrep_arguments = vimgrep_arguments
-    })
+  local live_grep_uu_ex = function()
+    return mu.live_grep_global_g_args(2)
   end
 
   vim.keymap.set("n", "<leader>ff", telescope.find_files, { desc = "Telescope find files" })
@@ -122,13 +115,13 @@ if telescope then
     { desc = "Telescope file files with selection in name" })
   vim.keymap.set("n", "<leader>fj", telescope.jumplist, { desc = "Telescope find jumplist" })
   vim.keymap.set("n", "<C-p>", telescope.git_files, { desc = "Telescope find files in git" })
-  vim.keymap.set("n", "<leader>fg", telescope.live_grep, { desc = "Telescope live grep" })
-  vim.keymap.set("v", "<leader>fg", yank_call_paste(telescope.live_grep), { desc = "Telescope live grep selection" })
-  vim.keymap.set("n", "<leader>fG", live_grep_uu, { desc = "Telescope live grep -uu" })
-  vim.keymap.set("v", "<leader>fG", yank_call_paste(live_grep_uu), { desc = "Telescope live grep -uu selection" })
-  vim.keymap.set("n", "<leader>fA", function() live_grep_uu(true) end, { desc = "Telescope live grep -uu + excludes" })
-  vim.keymap.set("v", "<leader>fA", yank_call_paste(function() live_grep_uu(true) end),
-    { desc = "Telescope live grep -uu + excludes selection " })
+  vim.keymap.set("n", "<leader>fg", mu.live_grep, { desc = "Telescope live grep" })
+  vim.keymap.set("v", "<leader>fg", yank_call_paste(mu.live_grep), { desc = "Telescope live grep selection" })
+  vim.keymap.set("n", "<leader>fG", live_grep_uu_ex, { desc = "Telescope live grep -uu with excludes" })
+  vim.keymap.set("v", "<leader>fG", yank_call_paste(live_grep_uu_ex),
+    { desc = "Telescope live grep -uu selection with excludes" })
+  vim.keymap.set("n", "<leader>fA", live_grep_uu, { desc = "Telescope live grep -uu" })
+  vim.keymap.set("v", "<leader>fA", yank_call_paste(live_grep_uu), { desc = "Telescope live grep -uu selection" })
   vim.keymap.set("n", "<leader>fb", telescope.buffers, { desc = "Telescope buffers" })
   vim.keymap.set("n", "<leader>fh", telescope.help_tags, { desc = "Telescope help tags" })
   vim.keymap.set("n", "<leader>fk", telescope.keymaps, { desc = "Telescope keymaps" })

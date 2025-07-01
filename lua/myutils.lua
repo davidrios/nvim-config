@@ -5,6 +5,16 @@ local sha1 = require('sha1')
 
 local M = {}
 
+local function prequire(...)
+  local status, lib = pcall(require, ...)
+  if (status) then return lib end
+  vim.print('Failed to require ' .. ...)
+  return nil
+end
+M.prequire = prequire
+
+local telescope = prequire("telescope.builtin")
+
 local SESSION_PREFIX = '.neovim'
 if vim.fn.filereadable('.idea/neovim/session') == 1 then
   SESSION_PREFIX = '.idea/neovim'
@@ -21,14 +31,6 @@ M.RC_FILE = RC_FILE
 
 local UNDO_DIR = SESSION_PREFIX .. '/undo'
 M.UNDO_DIR = UNDO_DIR
-
-local function prequire(...)
-  local status, lib = pcall(require, ...)
-  if (status) then return lib end
-  vim.print('Failed to require ' .. ...)
-  return nil
-end
-M.prequire = prequire
 
 local function get_last_x(my_list, x)
   local len = #my_list
@@ -324,6 +326,50 @@ function M.anotify(arg1, arg2, arg3)
   vim.schedule(function()
     vim.notify(arg1, arg2, arg3)
   end)
+end
+
+local global_g_args = { '!node_modules', '!.idea', '!.vscode', '!.neovim', '!.venv' }
+function M.extend_global_g_args(g_args)
+  for i = 1, #g_args do
+    table.insert(global_g_args, g_args[i])
+  end
+end
+
+if telescope then
+  function M.live_grep(us, g_args)
+    local vimgrep_arguments = {
+      "rg", "--color=never", "--no-heading", "--with-filename", "--line-number",
+      "--column", "--smart-case", }
+
+    if us ~= nil and us > 0 then
+      local au = '-'
+      for _ = 1, us do
+        au = au .. 'u'
+      end
+      table.insert(vimgrep_arguments, au)
+    end
+
+    if g_args ~= nil and #g_args > 0 then
+      for i = 1, #g_args do
+        table.insert(vimgrep_arguments, "-g")
+        table.insert(vimgrep_arguments, g_args[i])
+      end
+    end
+
+    telescope.live_grep({
+      vimgrep_arguments = vimgrep_arguments
+    })
+  end
+
+  function M.live_grep_global_g_args(us, g_args)
+    if g_args == nil then
+      g_args = {}
+    end
+    for i = 1, #global_g_args do
+      table.insert(g_args, global_g_args[i])
+    end
+    return M.live_grep(us, g_args)
+  end
 end
 
 return M
