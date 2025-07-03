@@ -15,7 +15,7 @@ vim.keymap.set("n", "<leader>br",
     end)
   end,
   { desc = "Reload buffer (to activate LSP)" })
-vim.keymap.set("n", "<leader>bR", "mZ:w<cr>:bd<cr>'Z", { desc = "Write and reload buffer (to activate LSP)" })
+vim.keymap.set("n", "<leader>bR", "mZ:w<cr>:bd<cr>`Z", { desc = "Write and reload buffer (to activate LSP)" })
 vim.keymap.set("n", "<leader>bA", ":%bd|e#<cr>", { desc = "Close all other buffers" })
 vim.keymap.set("n", "<leader>qf", function() vim.cmd("qa!") end, { desc = "Force quit" })
 vim.keymap.set("n", "<leader>qa", "<cmd>qa<cr>", { desc = "Quit all" })
@@ -30,8 +30,38 @@ vim.keymap.set("n", "<leader>uz", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>
 vim.keymap.set("n", "<c-s>", function()
   vim.lsp.buf.format(); vim.cmd.w()
 end, { desc = "Reformat and write buffer" })
+local function on_list_goto_first(options)
+  -- the contents of this function were copied from the neovim source code
+  local api = vim.api
+  vim.fn.setqflist({}, ' ', options)
+  local from = vim.fn.getpos('.')
+  local bufnr = api.nvim_get_current_buf()
+  from[1] = bufnr
+  local tagname = vim.fn.expand('<cword>')
+  local win = api.nvim_get_current_win()
+  local item = vim.fn.getqflist()[1]
+  local b = item.bufnr or vim.fn.bufadd(item.filename)
+  -- Push a new item into tagstack
+  local tagstack = { { tagname = tagname, from = from } }
+  vim.fn.settagstack(vim.fn.win_getid(win), { items = tagstack }, 't')
+  vim.bo[b].buflisted = true
+  local w = win
+  w = vim.fn.win_findbuf(b)[1] or w
+  if w ~= win then
+    api.nvim_set_current_win(w)
+  else
+    -- Save position in jumplist
+    vim.cmd("normal! m'")
+  end
+  api.nvim_win_set_buf(w, b)
+  api.nvim_win_set_cursor(w, { item.lnum, item.col - 1 })
+  vim._with({ win = w }, function()
+    -- Open folds under the cursor
+    vim.cmd('normal! zv')
+  end)
+end
 vim.keymap.set("n", "<C-]>", function()
-  vim.lsp.buf.implementation({ reuse_win = true })
+  vim.lsp.buf.definition({ reuse_win = true, on_list = on_list_goto_first })
 end, { desc = "Go to implementation" })
 vim.keymap.set("v", "J", ":m '>+1<cr>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<cr>gv=gv")
