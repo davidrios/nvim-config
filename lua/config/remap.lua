@@ -30,6 +30,9 @@ vim.keymap.set("n", "<leader>uz", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>
 vim.keymap.set("n", "<c-s>", function()
   vim.lsp.buf.format(); vim.cmd.w()
 end, { desc = "Reformat and write buffer" })
+vim.keymap.set("n", "<C-]>", function()
+  vim.lsp.buf.implementation({ reuse_win = true })
+end, { desc = "Go to implementation" })
 vim.keymap.set("v", "J", ":m '>+1<cr>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<cr>gv=gv")
 vim.keymap.set("x", "<leader>p", "\"_dP", { desc = "Paste without saving" })
@@ -85,6 +88,18 @@ if dap then
   vim.keymap.set('n', '<Leader>ds', function() dapw.centered_float(dapw.scopes) end, { desc = "DAP: Scopes" })
 end
 
+local ls = mu.prequire("luasnip")
+if ls then
+  -- vim.keymap.set({ "i" }, "<C-K>", function() ls.expand() end, { silent = true })
+  vim.keymap.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end, { silent = true })
+  vim.keymap.set({ "i", "s" }, "<C-J>", function() ls.jump(-1) end, { silent = true })
+  vim.keymap.set({ "i", "s" }, "<C-K>", function()
+    if ls.choice_active() then
+      ls.change_choice(1)
+    end
+  end, { silent = true })
+end
+
 local telescope = mu.prequire("telescope.builtin")
 
 local function yank_call_paste(fn, register)
@@ -132,6 +147,5 @@ if telescope then
   vim.keymap.set("n", "<leader>cs", telescope.lsp_document_symbols, { desc = "Telescope LSP document symbols" })
   vim.keymap.set("n", "<leader>cr", telescope.lsp_references, { desc = "Telescope LSP references" })
   vim.keymap.set("n", "<leader>ct", telescope.lsp_type_definitions, { desc = "Telescope LSP type definitions" })
-  vim.keymap.set("n", "<leader>ci", telescope.lsp_implementations, { desc = "Telescope LSP implementation" })
   vim.keymap.set("n", "<C-/>", telescope.current_buffer_fuzzy_find, { desc = "Telescope find fuzzy in current buffer" })
 end
