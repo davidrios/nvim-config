@@ -121,22 +121,27 @@ M.CachedFn = CachedFn
 local function cache_key_1(arg1) return arg1 end
 M.cache_key_1 = cache_key_1
 
-local NVIM_TREE_NAME = 'NvimTree_[0-9]+'
+local IGNORE_BUF_NAME = { '^NvimTree_[0-9]+', '^undotree_', '^diffpanel_' }
+
+local function match_any(patterns, cmp)
+  for i = 1, #patterns do
+    if cmp:match(patterns[i]) then
+      return true
+    end
+  end
+  return false
+end
+M.match_any = match_any
 
 local function my_tab_label(n)
   local buflist = vim.fn.tabpagebuflist(n)
-  local winnr = vim.fn.tabpagewinnr(n)
-  local bufnr = buflist[winnr]
-  local bufname = vim.fn.bufname(bufnr)
-  if bufname:match(NVIM_TREE_NAME) and #buflist > 1 then
-    for i = 1, #buflist do
-      local bufnr2 = buflist[i]
-      bufname = vim.fn.bufname(bufnr2)
-      if not bufname:match(NVIM_TREE_NAME) then
-        break
-      end
-    end
+  local i = 1
+  while i <= #buflist and match_any(IGNORE_BUF_NAME, vim.fn.bufname(buflist[i])) do
+    i = i + 1
   end
+
+  local bufnr = buflist[i]
+  local bufname = vim.fn.bufname(bufnr)
   if #bufname == 0 then
     bufname = '[No Name]'
   end
