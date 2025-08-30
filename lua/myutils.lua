@@ -141,7 +141,7 @@ local function my_tab_label(n)
   end
 
   if i > #buflist then
-    i = #buflist[#buflist]
+    i = #buflist
   end
 
   local bufnr = buflist[i]
