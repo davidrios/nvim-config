@@ -140,6 +140,10 @@ local function my_tab_label(n)
     i = i + 1
   end
 
+  if i > #buflist then
+    i = #buflist[#buflist]
+  end
+
   local bufnr = buflist[i]
   local bufname = vim.fn.bufname(bufnr)
   if #bufname == 0 then
