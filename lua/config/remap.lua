@@ -179,3 +179,8 @@ if telescope then
   vim.keymap.set("n", "<leader>ct", telescope.lsp_type_definitions, { desc = "Telescope LSP type definitions" })
   vim.keymap.set("n", "<C-/>", telescope.current_buffer_fuzzy_find, { desc = "Telescope find fuzzy in current buffer" })
 end
+
+local otter = mu.prequire("otter")
+if otter then
+  vim.keymap.set("n", "<leader>uo", function() otter.activate() end, { desc = "Activate Otter" })
+end
