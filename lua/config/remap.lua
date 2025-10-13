@@ -30,6 +30,7 @@ vim.keymap.set("n", "<leader>uz", "<cmd>UndotreeToggle<cr><cmd>UndotreeFocus<cr>
 vim.keymap.set("n", "<c-s>", function()
   vim.lsp.buf.format(); vim.cmd.w()
 end, { desc = "Reformat and write buffer" })
+
 local function on_list_goto_first(options)
   -- the contents of this function were copied from the neovim source code
   local api = vim.api
@@ -60,6 +61,7 @@ local function on_list_goto_first(options)
     vim.cmd('normal! zv')
   end)
 end
+
 vim.keymap.set("n", "<C-]>", function()
   vim.lsp.buf.definition({ reuse_win = true, on_list = on_list_goto_first })
 end, { desc = "Go to implementation" })
@@ -176,7 +178,8 @@ if telescope then
   vim.keymap.set("n", "<leader>cx", telescope.diagnostics, { desc = "Telescope code diagnostics" })
   vim.keymap.set("n", "<leader>cs", telescope.lsp_document_symbols, { desc = "Telescope LSP document symbols" })
   vim.keymap.set("n", "<leader>cr", telescope.lsp_references, { desc = "Telescope LSP references" })
-  vim.keymap.set("n", "<leader>ct", telescope.lsp_type_definitions, { desc = "Telescope LSP type definitions" })
+  vim.keymap.set("n", "<leader>ct", function() telescope.lsp_type_definitions({ jump_type = "tab drop" }) end,
+    { desc = "Telescope LSP type definitions" })
   vim.keymap.set("n", "<C-/>", telescope.current_buffer_fuzzy_find, { desc = "Telescope find fuzzy in current buffer" })
 end
 
