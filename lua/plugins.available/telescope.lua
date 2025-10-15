@@ -9,7 +9,10 @@ return {
         defaults = {
           get_selection_window = function(picker, entry)
             local w = 0
-            local b = vim.fn.bufnr(entry.filename) or vim.fn.bufadd(entry.filename)
+            local b = vim.fn.bufnr(entry.filename)
+            if b == -1 then
+              b = vim.fn.bufadd(entry.filename)
+            end
             vim.bo[b].buflisted = true
             return vim.fn.win_findbuf(b)[1] or w
           end
