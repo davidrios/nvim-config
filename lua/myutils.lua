@@ -152,6 +152,9 @@ local function my_tab_label(n)
 
   local parts = get_last_x(vim.split(bufname, '/'), 3)
   local fname = table.remove(parts)
+  if #fname > 20 then
+    fname = string.sub(fname, 0, 19) .. '…'
+  end
 
   local rest = str_join('/', parts, function(part) return part:sub(1, 3) end)
   if #rest > 0 then
