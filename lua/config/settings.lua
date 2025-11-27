@@ -58,6 +58,10 @@ vim.lsp.config('ruff', {
   cmd = { 'uvx', 'ruff', 'server' },
 })
 
+vim.lsp.config('pyrefly', {
+  cmd = { 'uvx', 'pyrefly', 'lsp' },
+})
+
 local efmls_config = {
   -- filetypes = vim.tbl_keys(languages),
   settings = {
