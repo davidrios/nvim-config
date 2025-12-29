@@ -157,7 +157,9 @@ if telescope then
     return mu.live_grep_global_g_args(2)
   end
 
-  vim.keymap.set("n", "<leader>ff", telescope.find_files, { desc = "Telescope find files" })
+  vim.keymap.set("n", "<leader>ff",
+    function() telescope.find_files({ find_command = { "fd", "-u", "-t", "file", "--color", "never" } }) end,
+    { desc = "Telescope find files" })
   vim.keymap.set("v", "<leader>ff", yank_call_paste(telescope.find_files),
     { desc = "Telescope file files with selection in name" })
   vim.keymap.set("n", "<leader>fj", telescope.jumplist, { desc = "Telescope find jumplist" })
