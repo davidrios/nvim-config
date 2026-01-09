@@ -7,6 +7,7 @@ return {
           javascript = { "prettier", "injected" },
           typescript = { "prettier", "injected" },
           html = { "prettier" },
+          vue = { "prettier" },
           css = { "prettier" },
         },
       })
@@ -35,6 +36,7 @@ return {
             typescript = 'ts',
             html = 'html',
             css = 'css',
+            vue = 'vue',
           },
           -- Map of treesitter language to formatters to use
           -- (defaults to the value from formatters_by_ft)
