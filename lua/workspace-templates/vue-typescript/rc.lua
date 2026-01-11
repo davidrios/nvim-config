@@ -62,6 +62,7 @@ vim.lsp.enable('efm')
 local prettier = require('efmls-configs.formatters.prettier')
 
 local languages = {
+  javascript = { prettier },
   typescript = { prettier },
   typescriptreact = { prettier },
   vue = { prettier },
@@ -83,7 +84,7 @@ local efm_config = {
 vim.lsp.config('efm', efm_config)
 
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = { 'typescript', 'typescriptreact', 'vue', 'html', 'css', 'json', 'jsonc' },
+  pattern = { 'javascript', 'typescript', 'typescriptreact', 'vue', 'html', 'css', 'json', 'jsonc' },
   group = config.my_augroup,
   callback = function(opts)
     vim.keymap.set("n", "<c-s>", function()
@@ -95,7 +96,7 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- vim.api.nvim_create_autocmd('FileType', {
---   pattern = { 'typescript' },
+--   pattern = { 'javascript', 'typescript' },
 --   group = config.my_augroup,
 --   callback = function(opts)
 --     require('otter').activate()
