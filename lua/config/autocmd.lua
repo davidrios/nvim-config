@@ -147,6 +147,9 @@ vim.api.nvim_create_autocmd({ 'BufRead' }, {
         vim.bo[bufnr].filetype = "python"
       end
     end
+    if vim.bo[bufnr].filetype == '' and vim.fn.expand('%'):match('.jade$') then
+      vim.bo[bufnr].filetype = "pug"
+    end
   end
 })
 
