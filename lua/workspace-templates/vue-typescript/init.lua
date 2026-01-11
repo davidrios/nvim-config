@@ -10,7 +10,7 @@ function M.setup(rc_file)
   end
 
   if not node_base.install_node_packages(
-        lsp_dir, { 'typescript-language-server', 'typescript', '@vue/language-server', '@vue/typescript-plugin', 'vscode-langservers-extracted' }
+        lsp_dir, { 'typescript-language-server', 'typescript', '@vue/language-server', '@vue/typescript-plugin', 'vscode-langservers-extracted', 'eslint-formatter-visualstudio' }
       ) then
     return
   end

@@ -38,7 +38,8 @@ vim.lsp.config('basedpyright', {
       },
       typeCheckingMode = "basic"
     }
-  }
+  },
+  root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", "pyrightconfig.json", ".git", ".venv" }
 })
 
 vim.lsp.config('pylsp', {
