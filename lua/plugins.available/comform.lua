@@ -9,6 +9,8 @@ return {
           html = { "prettier" },
           vue = { "prettier" },
           css = { "prettier" },
+          json = { "prettier" },
+          jsonc = { "prettier" },
         },
       })
 
