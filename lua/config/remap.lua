@@ -16,12 +16,46 @@ vim.keymap.set("n", "<leader>br",
     local escaped = vim.fn.fnameescape(currf)
     mu.feedkeys("mZ:ed ___<cr>:bd " .. escaped .. "<cr>:ed " .. escaped .. "<cr>'Z:bd ___<cr>")
     vim.schedule(function()
-      vim.cmd("echom ''")
+      mu.feedkeys("`'")
     end)
   end,
   { desc = "Reload buffer (to activate LSP)" })
-vim.keymap.set("n", "<leader>bR", "mZ:w<cr>:bd<cr>`Z", { desc = "Write and reload buffer (to activate LSP)" })
 vim.keymap.set("n", "<leader>bA", ":%bd|e#<cr>", { desc = "Close all other buffers" })
+
+local function jump_smart(pos)
+  local jumplist, cur_idx = unpack(vim.fn.getjumplist())
+
+  local target_idx = cur_idx
+  -- equivalent to <C-o>
+  local code = "\15"
+  if pos >= 0 then
+    target_idx = cur_idx + 2
+    -- equivalent to <C-i>
+    code = "\09"
+  else
+    if cur_idx == 0 then return end
+  end
+
+  local target_jump = jumplist[target_idx]
+  if not target_jump then return end
+
+  local target_bufnr = target_jump.bufnr
+  local current_bufnr = vim.api.nvim_get_current_buf()
+
+  if target_bufnr ~= current_bufnr then
+    local target_windows = vim.fn.win_findbuf(target_bufnr)
+
+    if #target_windows > 0 then
+      vim.api.nvim_set_current_win(target_windows[1])
+      return
+    end
+  end
+
+  vim.cmd("normal! " .. (vim.v.count1) .. code)
+end
+vim.keymap.set("n", "<C-o>", function() jump_smart(-1) end, { desc = "Smart Jump Back" })
+vim.keymap.set("n", "<C-i>", function() jump_smart(1) end, { desc = "Smart Jump Forward" })
+
 vim.keymap.set("n", "<leader>qf", function() vim.cmd("qa!") end, { desc = "Force quit" })
 vim.keymap.set("n", "<leader>qa", "<cmd>qa<cr>", { desc = "Quit all" })
 vim.keymap.set("n", "<leader>qw", vim.cmd.xa, { desc = "Quit writing all" })
@@ -36,8 +70,9 @@ vim.keymap.set("n", "<c-s>", function()
   vim.lsp.buf.format(); vim.cmd.w()
 end, { desc = "Reformat and write buffer" })
 
+-- if the destination file is already opened in another window, switch to it
+-- this function is adapted from the neovim source code
 local function on_list_goto_first(options)
-  -- the contents of this function were copied from the neovim source code
   local api = vim.api
   vim.fn.setqflist({}, ' ', options)
   local from = vim.fn.getpos('.')
@@ -46,22 +81,30 @@ local function on_list_goto_first(options)
   local tagname = vim.fn.expand('<cword>')
   local win = api.nvim_get_current_win()
   local item = vim.fn.getqflist()[1]
-  local b = item.bufnr or vim.fn.bufadd(item.filename)
+  local destbufnr = item.bufnr or vim.fn.bufadd(item.filename)
   -- Push a new item into tagstack
   local tagstack = { { tagname = tagname, from = from } }
   vim.fn.settagstack(vim.fn.win_getid(win), { items = tagstack }, 't')
-  vim.bo[b].buflisted = true
-  local w = win
-  w = vim.fn.win_findbuf(b)[1] or w
-  if w ~= win then
-    api.nvim_set_current_win(w)
-  else
-    -- Save position in jumplist
+  vim.bo[destbufnr].buflisted = true
+  local destwin = win
+  destwin = vim.fn.win_findbuf(destbufnr)[1] or destwin
+  if destwin ~= win then
+    -- open destination buffer first in same window, goto cursor, save mark and go back so it's added to the jumplist
+    api.nvim_win_set_buf(win, destbufnr)
+    api.nvim_win_set_cursor(win, { item.lnum, item.col - 1 })
     vim.cmd("normal! m'")
+    vim.cmd("normal! 1\15")
+
+    local curr_pos = vim.api.nvim_win_get_cursor(0)
+    api.nvim_set_current_win(destwin)
+    -- set previous buffer at previous cursor in the destination window to be able to add a jumplist
+    api.nvim_win_set_buf(destwin, bufnr)
+    api.nvim_win_set_cursor(destwin, { curr_pos[1], curr_pos[2] })
   end
-  api.nvim_win_set_buf(w, b)
-  api.nvim_win_set_cursor(w, { item.lnum, item.col - 1 })
-  vim._with({ win = w }, function()
+  vim.cmd("normal! m'")
+  api.nvim_win_set_buf(destwin, destbufnr)
+  api.nvim_win_set_cursor(destwin, { item.lnum, item.col - 1 })
+  vim._with({ win = destwin }, function()
     -- Open folds under the cursor
     vim.cmd('normal! zv')
   end)
