@@ -7,6 +7,11 @@ vim.keymap.set("n", "<leader>bD", "<cmd>bd!<cr>", { desc = "Delete buffer withou
 vim.keymap.set("n", "<leader>bt", ":tabnew %<cr><c-tab><c-o><c-tab>", { desc = "Move buffer to separate tab" })
 vim.keymap.set("n", "<leader>br",
   function()
+    if vim.bo.modified then
+      vim.notify("Cannot reload modified buffer!", vim.log.levels.ERROR)
+      return
+    end
+
     local currf = vim.fn.expand('%')
     local escaped = vim.fn.fnameescape(currf)
     mu.feedkeys("mZ:ed ___<cr>:bd " .. escaped .. "<cr>:ed " .. escaped .. "<cr>'Z:bd ___<cr>")
