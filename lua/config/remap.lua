@@ -17,6 +17,7 @@ vim.keymap.set("n", "<leader>br",
     mu.feedkeys("mZ:ed ___<cr>:bd " .. escaped .. "<cr>:ed " .. escaped .. "<cr>'Z:bd ___<cr>")
     vim.schedule(function()
       mu.feedkeys("`'")
+      vim.print("Buffer reloaded")
     end)
   end,
   { desc = "Reload buffer (to activate LSP)" })
