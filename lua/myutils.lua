@@ -295,7 +295,7 @@ function M.setup_workspace_rc(name)
 
   if ws_rc_file:exists() then
     vim.notify(
-      'error: workspace template rc file "' .. rc_file_name .. '" already exists, not overwritting',
+      'error: workspace template rc file "' .. ws_rc_file .. '" already exists, not overwritting',
       vim.log.levels.ERROR)
     return
   end
